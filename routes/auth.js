@@ -15,11 +15,11 @@ router.post('/new', [
     check('nombre', 'El nombre es obligatorio').not().isEmpty(),
     check('email', 'El email es obligatorio').isEmail(),
     check('password', 'La contraseña es obligatoria').not().isEmpty(),
-    check('password', 'La contraseña debe tener, al menos, 6 caracteres').isLength({min: 6}),
-    check('password', 'La contraseña debe contener, al menos, un número').matches(/\d/g),
-    check('password', 'La contraseña debe contener, al menos, una minúscula').matches(/[a-z]/g),
-    check('password', 'La contraseña debe contener, al menos, una mayúscula').matches(/[A-Z]/g),
-    check('password', 'La contraseña debe contener, al menos, un carácter especial').matches(/\W/g),
+    check('password', 'La contraseña debe tener, al menos, 8 caracteres').isLength({min: 8}),
+    check('password', 'La contraseña debe contener, al menos, un número').matches('[0-9]'),
+    check('password', 'La contraseña debe contener, al menos, una minúscula').matches('[a-z]'),
+    check('password', 'La contraseña debe contener, al menos, una mayúscula').matches('[A-Z]'),
+    check('password', 'La contraseña debe contener, al menos, un carácter especial').matches('[!@#%&():;<>/=?]'),
     validarCampos
 ], crearUsuario); 
 
