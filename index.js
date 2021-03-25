@@ -1,5 +1,7 @@
 const express = require('express');
 const path = require('path');
+const { usuarioConectado, usuarioDesconectado, grabarMensaje } = require('./controllers/socket');
+const { comprobarJWT } = require('./helpers/jwt');
 require('dotenv').config();
 
 // DB Config
@@ -16,6 +18,8 @@ const publicPath = path.resolve(__dirname, 'public');
 
 // Mis rutas
 app.use('/api/login', require('./routes/auth'));
+app.use('/api/usuarios', require('./routes/usuarios'));
+app.use('/api/mensajes', require('./routes/mensajes'));
 
 app.use(express.static(publicPath));
 
@@ -27,8 +31,26 @@ const io = require('socket.io')(server);
 io.on('connection', client => {
     console.log('Cliente conectado');
 
+    const [valido, uid] = comprobarJWT(client.handshake.headers['x-token']);
+    // Check authentication
+    if (!valido) {return client.disconnect();}
+
+    // Client authentication checked
+    usuarioConectado(uid)
+
+    // Ingresar al usuario a una sala específica
+    client.join(uid);
+
+    // Escuchar del cliente el mensaje personal
+    client.on('mensaje-personal', async (payload) => {
+        await grabarMensaje(payload);
+
+        io.to(payload.para).emit('mensaje-personal', payload);
+    });
+
     client.on('disconnect', () => {
         console.log('Cliente desconectado');
+        usuarioDesconectado(uid);
     });
 
 });
